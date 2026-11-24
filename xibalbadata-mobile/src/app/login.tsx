@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, ActivityIndicator,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import FondoPantalla from '../components/FondoPantalla';
+import Logos from '../components/Logos';
+import { colores, fuentes, superficies, tipografia } from '../theme';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -22,7 +27,6 @@ export default function Login() {
     try {
       await signIn(correo.trim(), contrasena);
     } catch (e: any) {
-      console.log('LOGIN ERROR:', e?.message, e?.code, e?.response?.status, e?.config?.baseURL, e?.config?.url);
       if (e?.response?.status === 401 || e?.response?.status === 403) {
         setError('Usuario o contraseña incorrectos');
       } else {
@@ -34,55 +38,85 @@ export default function Login() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.titulo}>XibalbaData</Text>
-      <Text style={styles.subtitulo}>Monitoreo de mantos acuíferos</Text>
+    <FondoPantalla>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
+            <Logos alto={44} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Usuario"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={correo}
-        onChangeText={setCorreo}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={contrasena}
-        onChangeText={setContrasena}
-        onSubmitEditing={entrar}
-      />
+            <View>
+              <Text style={tipografia.tituloPantalla}>XibalbaData</Text>
+              <Text style={[tipografia.subtitulo, styles.subtitulo]}>Monitoreo de mantos acuíferos</Text>
+            </View>
 
-      {!!error && <Text style={styles.error}>{error}</Text>}
+            <View style={[superficies.panelVidrio, styles.panel]}>
+              <Text style={tipografia.tituloTarjeta}>Iniciar sesión</Text>
 
-      <Pressable style={styles.boton} onPress={entrar} disabled={enviando}>
-        {enviando ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.botonTexto}>Entrar</Text>
-        )}
-      </Pressable>
-    </KeyboardAvoidingView>
+              <View style={styles.campo}>
+                <Text style={tipografia.etiquetaFormulario}>Correo</Text>
+                <TextInput
+                  style={[superficies.entrada, styles.entrada]}
+                  placeholder="correo@ejemplo.com"
+                  placeholderTextColor={colores.textoTenue}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  value={correo}
+                  onChangeText={setCorreo}
+                />
+              </View>
+
+              <View style={styles.campo}>
+                <Text style={tipografia.etiquetaFormulario}>Contraseña</Text>
+                <TextInput
+                  style={[superficies.entrada, styles.entrada]}
+                  placeholder="••••••••"
+                  placeholderTextColor={colores.textoTenue}
+                  secureTextEntry
+                  value={contrasena}
+                  onChangeText={setContrasena}
+                  onSubmitEditing={entrar}
+                />
+              </View>
+
+              {!!error && (
+                <View style={styles.error}>
+                  <Ionicons name="alert-circle" size={18} color={colores.aviso} />
+                  <Text style={styles.errorTexto}>{error}</Text>
+                </View>
+              )}
+
+              <Pressable
+                style={({ pressed }) => [
+                  superficies.botonPrimario,
+                  pressed && { backgroundColor: colores.primarioPresionado },
+                ]}
+                onPress={entrar}
+                disabled={enviando}
+              >
+                {enviando ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="log-in-outline" size={22} color="#fff" />
+                    <Text style={tipografia.boton}>Ingresar</Text>
+                  </>
+                )}
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </FondoPantalla>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#0b1f2a' },
-  titulo: { fontSize: 32, fontWeight: '700', color: '#fff', textAlign: 'center' },
-  subtitulo: { color: '#9bb8c7', textAlign: 'center', marginBottom: 32 },
-  input: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 14,
-    marginBottom: 12, fontSize: 16,
-  },
-  error: { color: '#ff8a80', marginBottom: 12, textAlign: 'center' },
-  boton: {
-    backgroundColor: '#1e88e5', borderRadius: 12, padding: 16,
-    alignItems: 'center', marginTop: 4,
-  },
-  botonTexto: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  contenido: { flexGrow: 1, justifyContent: 'center', padding: 16, gap: 24 },
+  subtitulo: { textAlign: 'center', marginTop: 4, opacity: 0.9 },
+  panel: { padding: 20, gap: 18 },
+  campo: { gap: 6 },
+  entrada: { fontFamily: fuentes.book, fontSize: 16, color: colores.primario },
+  error: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  errorTexto: { fontFamily: fuentes.heavy, color: colores.aviso, fontSize: 14 },
 });

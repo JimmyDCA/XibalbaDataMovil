@@ -1,6 +1,9 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import FondoPantalla from '../../components/FondoPantalla';
+import { colores, fuentes, radios, superficies, tipografia } from '../../theme';
 
 function Dato({ etiqueta, valor }: { etiqueta: string; valor?: string }) {
   return (
@@ -16,51 +19,64 @@ export default function Perfil() {
   const inicial = usuario?.nombre?.charAt(0).toUpperCase() ?? '?';
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.cabecera}>
-        <View style={styles.avatar}>
-          <Text style={styles.inicial}>{inicial}</Text>
-        </View>
-        <Text style={styles.nombre}>{usuario?.nombre}</Text>
-        <Text style={styles.rol}>{usuario?.rol}</Text>
-      </View>
+    <FondoPantalla>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScrollView contentContainerStyle={styles.contenido}>
+          <View style={styles.cabecera}>
+            <View style={styles.avatar}>
+              <Text style={styles.inicial}>{inicial}</Text>
+            </View>
+            <Text style={tipografia.tituloPantalla}>{usuario?.nombre}</Text>
+            <Text style={[tipografia.subtitulo, styles.rol]}>{usuario?.rol}</Text>
+          </View>
 
-      <View style={styles.tarjeta}>
-        <Dato etiqueta="Correo" valor={usuario?.correo} />
-        <Dato etiqueta="Matrícula" valor={usuario?.matricula} />
-        <Dato etiqueta="Teléfono" valor={usuario?.telefono} />
-      </View>
+          <View style={[superficies.tarjetaBlanca, styles.tarjeta]}>
+            <Text style={styles.tituloTarjeta}>Datos de la cuenta</Text>
+            <Dato etiqueta="Correo" valor={usuario?.correo} />
+            <Dato etiqueta="Matrícula" valor={usuario?.matricula} />
+            <Dato etiqueta="Teléfono" valor={usuario?.telefono ? String(usuario.telefono) : undefined} />
+          </View>
 
-      <Pressable style={styles.boton} onPress={signOut}>
-        <Text style={styles.botonTexto}>Cerrar sesión</Text>
-      </Pressable>
-    </SafeAreaView>
+          <Pressable
+            style={({ pressed }) => [
+              superficies.botonPrimario,
+              styles.salir,
+              pressed && { backgroundColor: '#b02a37' },
+            ]}
+            onPress={signOut}
+          >
+            <Ionicons name="log-out-outline" size={22} color="#fff" />
+            <Text style={tipografia.boton}>Cerrar sesión</Text>
+          </Pressable>
+        </ScrollView>
+      </SafeAreaView>
+    </FondoPantalla>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1f2a', padding: 16, gap: 20 },
+  contenido: { padding: 16, gap: 20, flexGrow: 1 },
   cabecera: { alignItems: 'center', marginTop: 16, gap: 6 },
   avatar: {
-    width: 88, height: 88, borderRadius: 44,
-    backgroundColor: 'rgba(79,195,247,0.2)',
-    borderWidth: 1, borderColor: '#4fc3f7',
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: colores.superficie, borderWidth: 2, borderColor: colores.superficie,
     alignItems: 'center', justifyContent: 'center',
   },
-  inicial: { color: '#4fc3f7', fontSize: 38, fontWeight: '700' },
-  nombre: { color: '#fff', fontSize: 22, fontWeight: '700' },
-  rol: { color: '#9bb8c7', fontSize: 14, textTransform: 'capitalize' },
-  tarjeta: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
-    borderRadius: 24, padding: 8,
+  inicial: { fontFamily: fuentes.heavy, color: colores.primario, fontSize: 42 },
+  rol: { textTransform: 'capitalize', opacity: 0.9 },
+  tarjeta: { padding: 20 },
+  tituloTarjeta: {
+    fontFamily: fuentes.heavy, fontSize: 18, color: colores.primario,
+    paddingBottom: 10, marginBottom: 4, borderBottomWidth: 2, borderBottomColor: colores.divisor,
   },
-  dato: { paddingVertical: 12, paddingHorizontal: 12 },
-  etiqueta: { color: '#9bb8c7', fontSize: 12, marginBottom: 2 },
-  valor: { color: '#fff', fontSize: 16 },
-  boton: {
-    backgroundColor: 'rgba(198,40,40,0.9)', borderRadius: 14,
-    padding: 16, alignItems: 'center', marginTop: 'auto',
+  dato: {
+    paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: colores.borde, borderStyle: 'dashed',
   },
-  botonTexto: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  etiqueta: {
+    fontFamily: fuentes.heavy, color: colores.textoTenue, fontSize: 12,
+    textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2,
+  },
+  valor: { fontFamily: fuentes.book, color: colores.textoFuerte, fontSize: 16 },
+  salir: { backgroundColor: colores.peligro, marginTop: 'auto', borderRadius: radios.control },
 });

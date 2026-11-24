@@ -1,37 +1,45 @@
-import { Pressable, Text, StyleSheet, ViewStyle } from 'react-native';
+import { Pressable, Text, StyleSheet, View, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colores, superficies, tipografia } from '../theme';
 
 type Props = {
   titulo: string;
+  descripcion?: string;
   icono: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
-  color?: string;
   style?: ViewStyle;
 };
 
-export default function TarjetaMenu({ titulo, icono, onPress, color = '#4fc3f7', style }: Props) {
+/** Tarjeta de menú de vidrio con ícono en círculo blanco. */
+export default function TarjetaMenu({ titulo, descripcion, icono, onPress, style }: Props) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada, style]}
+      style={({ pressed }) => [
+        superficies.panelVidrio,
+        styles.tarjeta,
+        pressed && styles.presionada,
+        style,
+      ]}
+      accessibilityRole="button"
     >
-      <Ionicons name={icono} size={44} color={color} />
-      <Text style={styles.titulo}>{titulo}</Text>
+      <View style={styles.circulo}>
+        <Ionicons name={icono} size={38} color={colores.primario} />
+      </View>
+      <Text style={[tipografia.tituloTarjeta, styles.titulo]}>{titulo}</Text>
+      {descripcion ? <Text style={[tipografia.pequeno, styles.descripcion]}>{descripcion}</Text> : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  tarjeta: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    borderRadius: 24,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
+  tarjeta: { padding: 16, alignItems: 'center', justifyContent: 'center', gap: 10 },
+  presionada: { transform: [{ translateY: -3 }], backgroundColor: 'rgba(0,54,97,0.8)' },
+  circulo: {
+    width: 76, height: 76, borderRadius: 38,
+    backgroundColor: colores.superficie, borderWidth: 2, borderColor: colores.superficie,
+    alignItems: 'center', justifyContent: 'center',
   },
-  presionada: { opacity: 0.7, transform: [{ scale: 0.98 }] },
-  titulo: { color: '#fff', fontSize: 17, fontWeight: '600', textAlign: 'center' },
+  titulo: { textAlign: 'center', fontSize: 18 },
+  descripcion: { textAlign: 'center', fontSize: 13 },
 });
